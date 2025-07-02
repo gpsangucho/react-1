@@ -1,0 +1,344 @@
+Usuario:
+
+// src/pages/Usuario.tsx
+import React, { useState } from 'react';
+
+interface Usuario {
+  id: number;
+  nombre: string;
+  edad: number;
+}
+
+const usuariosData: Usuario[] = [
+  { id: 1, nombre: 'Ana', edad: 25 },
+  { id: 2, nombre: 'Luis', edad: 32 },
+  { id: 3, nombre: 'María', edad: 40 },
+  { id: 4, nombre: 'Jorge', edad: 28 },
+  { id: 5, nombre: 'Sofía', edad: 35 },
+];
+
+const Usuario: React.FC = () => {
+  const [edadFiltro, setEdadFiltro] = useState<number | ''>('');
+
+  // Filtrar usuarios por edad mínima seleccionada
+  const usuariosFiltrados = edadFiltro === ''
+    ? usuariosData
+    : usuariosData.filter(usuario => usuario.edad >= edadFiltro);
+
+  return (
+    <div className="container mt-4">
+      <h2>Usuarios</h2>
+
+      <div className="mb-3">
+        <label htmlFor="edadFiltro" className="form-label">Filtrar por edad mínima</label>
+        <select
+          id="edadFiltro"
+          className="form-select"
+          value={edadFiltro}
+          onChange={(e) => setEdadFiltro(e.target.value === '' ? '' : Number(e.target.value))}
+        >
+          <option value="">Todas las edades</option>
+          <option value="20">20+</option>
+          <option value="25">25+</option>
+          <option value="30">30+</option>
+          <option value="35">35+</option>
+          <option value="40">40+</option>
+        </select>
+      </div>
+
+      <div className="card">
+        <div className="card-header">Listado de usuarios</div>
+        <ul className="list-group list-group-flush">
+          {usuariosFiltrados.length === 0 ? (
+            <li className="list-group-item">No hay usuarios para mostrar.</li>
+          ) : (
+            usuariosFiltrados.map(usuario => (
+              <li key={usuario.id} className="list-group-item">
+                <strong>{usuario.nombre}</strong> - Edad: {usuario.edad}
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default Usuario;
+/////////////////////////////////////////////////////
+Bono
+// src/pages/Bono.tsx
+import React, { useState } from 'react';
+
+const Bono: React.FC = () => {
+  const [sueldoDiario, setSueldoDiario] = useState<number | ''>('');
+  const [diasDisfrute, setDiasDisfrute] = useState<number | ''>('');
+  const [bono, setBono] = useState<number | null>(null);
+
+  // Crear lista de días 1 a 30 para el select
+  const diasOptions = Array.from({ length: 30 }, (_, i) => i + 1);
+
+  const handleCalcular = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const sueldo = Number(sueldoDiario) || 0;
+    const dias = Number(diasDisfrute) || 0;
+
+    const calculoBono = sueldo * dias;
+    setBono(calculoBono);
+  };
+
+  return (
+    <div className="container mt-4">
+      <h2>Bono</h2>
+      <form onSubmit={handleCalcular}>
+        <div className="mb-3">
+          <label htmlFor="sueldoDiario" className="form-label">Sueldo Diario</label>
+          <input
+            type="number"
+            className="form-control"
+            id="sueldoDiario"
+            value={sueldoDiario}
+            onChange={(e) => setSueldoDiario(e.target.value === '' ? '' : Number(e.target.value))}
+            min={0}
+            step={10}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="diasDisfrute" className="form-label">Días de Disfrute</label>
+          <select
+            id="diasDisfrute"
+            className="form-select"
+            value={diasDisfrute}
+            onChange={(e) => setDiasDisfrute(Number(e.target.value))}
+            required
+          >
+            <option value="">Seleccione días</option>
+            {diasOptions.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
+
+        <button type="submit" className="btn btn-primary">Calcular Bono</button>
+      </form>
+
+      {bono !== null && (
+        <div className="alert alert-success mt-3" role="alert">
+          <strong>Bono Calculado:</strong> ${bono.toFixed(2)}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Bono;
+/////////////////////////////////
+Usuario version 1:
+import { useState } from "react";
+import api from "../api/axiosConfig";
+
+interface Usuario {
+  id: number;
+  nombre: string;
+  edad: number;
+}
+
+const Usuarios = () => {
+  const [edad, setEdad] = useState("");
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [cargando, setCargando] = useState(false);
+
+  const buscarPorEdad = async () => {
+    try {
+      setCargando(true);
+      const res = await api.get(`/usuarios`, {
+        params: { edad: edad }
+      });
+      setUsuarios(res.data);
+    } catch (error) {
+      console.error("Error al obtener usuarios:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  return (
+    <div style={{ padding: "1rem" }}>
+      <h2>Filtrar Usuarios por Edad</h2>
+
+      <input
+        type="number"
+        placeholder="Edad"
+        value={edad}
+        onChange={(e) => setEdad(e.target.value)}
+      />
+      <button onClick={buscarPorEdad} disabled={!edad}>
+        Buscar
+      </button>
+
+      {cargando ? (
+        <p>Cargando...</p>
+      ) : (
+        <ul>
+          {usuarios.map((usuario) => (
+            <li key={usuario.id}>
+              {usuario.id} - {usuario.nombre} ({usuario.edad} años)
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default Usuarios;
+
+//////////////////////////////////
+usuarios v2
+
+import { useEffect, useState } from "react";
+import api from "../api/axios";
+
+interface Usuario {
+id: number;
+nombre: string;
+edad: number;
+}
+
+const FiltrarUsuariosPorEdad = () => {
+const [edadMin, setEdadMin] = useState("18");
+const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+const [cargando, setCargando] = useState(false);
+
+// Ejecuta automáticamente la búsqueda al cambiar edadMin
+useEffect(() => {
+const obtenerUsuarios = async () => {
+if (!edadMin) return;
+try {
+setCargando(true);
+const res = await api.get("/usuarios", {
+params: { edadMin: edadMin },
+});
+setUsuarios(res.data);
+} catch (error) {
+console.error("Error al obtener usuarios:", error);
+setUsuarios([]);
+} finally {
+setCargando(false);
+}
+};
+obtenerUsuarios();
+}, [edadMin]);
+
+return (
+<div style={{ padding: "1rem" }}>
+<h2>Usuarios mayores de cierta edad</h2>
+  <label>
+    Edad mínima:
+    <input
+      type="number"
+      value={edadMin}
+      onChange={(e) => setEdadMin(e.target.value)}
+      style={{ marginLeft: "0.5rem" }}
+    />
+  </label>
+
+  <div style={{ marginTop: "1rem" }}>
+    {cargando ? (
+      <p>Cargando...</p>
+    ) : (
+      <div style={{ border: "1px solid #ccc", padding: "1rem" }}>
+        {usuarios.length === 0 ? (
+          <p>No se encontraron usuarios con edad ≥ {edadMin}.</p>
+        ) : (
+          <ul>
+            {usuarios.map((usuario) => (
+              <li key={usuario.id}>
+                {usuario.id} - {usuario.nombre} ({usuario.edad} años)
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )}
+  </div>
+</div>
+);
+};
+
+export default FiltrarUsuariosPorEdad;
+////////////////////////////////
+REGISTRO:
+
+// src/pages/Registro.tsx
+import React, { useState } from 'react';
+
+const Registro: React.FC = () => {
+  const [nombre, setNombre] = useState('');
+  const [edad, setEdad] = useState<number | ''>('');
+  const [cargo, setCargo] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(`Nombre: ${nombre}\nEdad: ${edad}\nCargo: ${cargo}`);
+  };
+
+  return (
+    <div className="container mt-4">
+      <h2>Registro</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label htmlFor="nombre" className="form-label">Nombre</label>
+          <input
+            type="text"
+            className="form-control"
+            id="nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="edad" className="form-label">Edad</label>
+          <input
+            type="number"
+            className="form-control"
+            id="edad"
+            value={edad}
+            onChange={(e) => setEdad(Number(e.target.value))}
+            required
+            min={0}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="cargo" className="form-label">Cargo</label>
+          <select
+            className="form-select"
+            id="cargo"
+            value={cargo}
+            onChange={(e) => setCargo(e.target.value)}
+            required
+          >
+            <option value="">Seleccione un cargo</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Empleado">Empleado</option>
+            <option value="Gerente">Gerente</option>
+            <option value="Interno">Interno</option>
+          </select>
+        </div>
+
+        <button type="submit" className="btn btn-primary">Registrar</button>
+      </form>
+    </div>
+  );
+};
+
+export default Registro;
+
+///////////////////////////
+

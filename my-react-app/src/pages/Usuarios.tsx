@@ -1,65 +1,70 @@
-// src/pages/Usuario.tsx
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
+import api from "../api/axiosConfig";
 
 interface Usuario {
-  id: number;
-  nombre: string;
-  edad: number;
+id: number;
+nombre: string;
+edad: number;
 }
 
-const usuariosData: Usuario[] = [
-  { id: 1, nombre: 'Ana', edad: 25 },
-  { id: 2, nombre: 'Luis', edad: 32 },
-  { id: 3, nombre: 'María', edad: 40 },
-  { id: 4, nombre: 'Jorge', edad: 28 },
-  { id: 5, nombre: 'Sofía', edad: 35 },
-];
+const Usuarios = () => {
+const [edad, setEdad] = useState("18");
+const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+const [cargando, setCargando] = useState(false);
 
-const Usuario: React.FC = () => {
-  const [edadFiltro, setEdadFiltro] = useState<number | ''>('');
+// Ejecutar búsqueda automáticamente cuando cambia la edad
+useEffect(() => {
+const buscarPorEdad = async () => {
+if (!edad || isNaN(Number(edad))) return;
 
-  // Filtrar usuarios por edad mínima seleccionada
-  const usuariosFiltrados = edadFiltro === ''
-    ? usuariosData
-    : usuariosData.filter(usuario => usuario.edad >= edadFiltro);
-
-  return (
-    <div className="container mt-4">
-      <h2>Usuarios</h2>
-
-      <div className="mb-3">
-        <label htmlFor="edadFiltro" className="form-label">Filtrar por edad mínima</label>
-        <select
-          id="edadFiltro"
-          className="form-select"
-          value={edadFiltro}
-          onChange={(e) => setEdadFiltro(e.target.value === '' ? '' : Number(e.target.value))}
-        >
-          <option value="">Todas las edades</option>
-          <option value="20">20+</option>
-          <option value="25">25+</option>
-          <option value="30">30+</option>
-          <option value="35">35+</option>
-          <option value="40">40+</option>
-        </select>
-      </div>
-
-      <div className="card">
-        <div className="card-header">Listado de usuarios</div>
-        <ul className="list-group list-group-flush">
-          {usuariosFiltrados.length === 0 ? (
-            <li className="list-group-item">No hay usuarios para mostrar.</li>
-          ) : (
-            usuariosFiltrados.map(usuario => (
-              <li key={usuario.id} className="list-group-item">
-                <strong>{usuario.nombre}</strong> - Edad: {usuario.edad}
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
-    </div>
-  );
+//
+  try {
+    setCargando(true);
+    const res = await api.get("/users", {
+      params: { edadMin: edad }, // aquí se usa edadMin o el nombre que soporte tu backend
+    });
+    setUsuarios(res.data);
+  } catch (error) {
+    console.error("Error al obtener usuarios:", error);
+    setUsuarios([]); // limpia la lista si hay error
+  } finally {
+    setCargando(false);
+  }
 };
 
-export default Usuario;
+buscarPorEdad();
+//
+}, [edad]);
+
+return (
+<div style={{ padding: "1rem" }}>
+<h2>Filtrar Usuarios por Edad Mínima</h2>
+  <input
+    type="number"
+    min="0"
+    placeholder="Edad mínima"
+    value={edad}
+    onChange={(e) => setEdad(e.target.value)}
+    style={{ marginRight: "0.5rem" }}
+  />
+
+  <div style={{ marginTop: "1rem", border: "1px solid #ccc", padding: "1rem" }}>
+    {cargando ? (
+      <p>Cargando usuarios...</p>
+    ) : usuarios.length === 0 ? (
+      <p>No se encontraron usuarios con edad ≥ {edad}.</p>
+    ) : (
+      <ul>
+        {usuarios.map((usuario) => (
+          <li key={usuario.id}>
+            {usuario.id} - {usuario.nombre} ({usuario.edad} años)
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</div>
+);
+};
+
+export default Usuarios;

@@ -1,67 +1,79 @@
+import { useState } from "react";
+import api from "../api/axiosConfig";
 
-// src/pages/Registro.tsx
-import React, { useState } from 'react';
+const Registro = () => {
+const [nombre, setNombre] = useState("");
+const [edad, setEdad] = useState("");
+const [cargo, setCargo] = useState("");
 
-const Registro: React.FC = () => {
-  const [nombre, setNombre] = useState('');
-  const [edad, setEdad] = useState<number | ''>('');
-  const [cargo, setCargo] = useState('');
+const [mensaje, setMensaje] = useState("");
+const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Nombre: ${nombre}\nEdad: ${edad}\nCargo: ${cargo}`);
+const registrarUsuario = async () => {
+// Validación simple
+if (!nombre || !edad || !cargo) {
+setError("Todos los campos son obligatorios");
+setMensaje("");
+return;
+}
+try {
+  setError("");
+  const nuevoUsuario = {
+    nombre,
+    edad: Number(edad),
+    cargo,
   };
 
-  return (
-    <div className="container mt-4">
-      <h2>Registro</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">Nombre</label>
-          <input
-            type="text"
-            className="form-control"
-            id="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-          />
-        </div>
+  const res = await api.post("/users", nuevoUsuario);
 
-        <div className="mb-3">
-          <label htmlFor="edad" className="form-label">Edad</label>
-          <input
-            type="number"
-            className="form-control"
-            id="edad"
-            value={edad}
-            onChange={(e) => setEdad(Number(e.target.value))}
-            required
-            min={0}
-          />
-        </div>
+  setMensaje(`Usuario registrado con ID: ${res.data.id}`);
+  setNombre("");
+  setEdad("");
+  setCargo("");
+} catch (err) {
+  console.error("Error al registrar:", err);
+  setError("Hubo un error al registrar el usuario.");
+  setMensaje("");
+}
+};
 
-        <div className="mb-3">
-          <label htmlFor="cargo" className="form-label">Cargo</label>
-          <select
-            className="form-select"
-            id="cargo"
-            value={cargo}
-            onChange={(e) => setCargo(e.target.value)}
-            required
-          >
-            <option value="">Seleccione un cargo</option>
-            <option value="Administrador">Administrador</option>
-            <option value="Empleado">Empleado</option>
-            <option value="Gerente">Gerente</option>
-            <option value="Interno">Interno</option>
-          </select>
-        </div>
+return (
+<div style={{ padding: "1rem", maxWidth: "400px" }}>
+<h2>Registro de Usuario</h2>
+  <div style={{ marginBottom: "1rem" }}>
+    <label>Nombre:</label><br />
+    <input
+      type="text"
+      value={nombre}
+      onChange={(e) => setNombre(e.target.value)}
+    />
+  </div>
 
-        <button type="submit" className="btn btn-primary">Registrar</button>
-      </form>
-    </div>
-  );
+  <div style={{ marginBottom: "1rem" }}>
+    <label>Edad:</label><br />
+    <input
+      type="number"
+      min="0"
+      value={edad}
+      onChange={(e) => setEdad(e.target.value)}
+    />
+  </div>
+
+  <div style={{ marginBottom: "1rem" }}>
+    <label>Cargo:</label><br />
+    <input
+      type="text"
+      value={cargo}
+      onChange={(e) => setCargo(e.target.value)}
+    />
+  </div>
+
+  <button onClick={registrarUsuario}>Registrar</button>
+
+  {mensaje && <p style={{ color: "green", marginTop: "1rem" }}>{mensaje}</p>}
+  {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
+</div>
+);
 };
 
 export default Registro;
