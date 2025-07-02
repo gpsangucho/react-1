@@ -7,8 +7,11 @@ import Bono from './pages/Bono';
 import Sueldo from './pages/Sueldo';
 import Registro from './pages/Registro';
 
+
 const App: React.FC = () => {
   return (
+    <>
+
     <Router>
       <Navbar />
       <div style={{ padding: '20px' }}>
@@ -21,6 +24,12 @@ const App: React.FC = () => {
         </Routes>
       </div>
     </Router>
+    
+    <footer className="bg-dark text-white text-center py-3 mt-5">
+        © 2025 - Mi App de Prueba - Todos los derechos reservados.
+    </footer>
+
+    </>
   );
 };
 

@@ -1,0 +1,71 @@
+import React from 'react';
+
+const Home: React.FC = () => (
+  <div className="container mt-4">
+    <h2 className="mb-3">Bienvenido a la página principal</h2>
+    <p>Utiliza el menú de navegación para explorar las secciones.</p>
+  </div>
+);
+
+export default Home;
+
+/*////////////////////////////////////////////////////*/
+.container {
+  display: flex; /* Habilita el modelo de caja flexible */
+  width: 300px; /* Ancho deseado del cuadro */
+  height: 100px; /* Altura deseada del cuadro */
+  border: 1px solid black; /* Opcional: para visualizar el cuadro */
+}
+
+.column {
+  flex: 1; /* Cada columna ocupa una parte igual del espacio disponible */
+  border: 1px solid gray; /* Opcional: para visualizar las columnas */
+  padding: 10px; /* Opcional: espacio interno de cada columna */
+  text-align: center; /* Centra el texto dentro de cada columna */
+}
+
+///////////////////////////////////////////////////////////////
+import { Link } from 'react-router-dom';
+import './Home.css';
+import imagenCentral from '../assets/central.png';
+
+const Home = () => {
+  return (
+    <div className="home-container">
+      <header>
+        <h1>Mi Portal de Recursos Humanos</h1>
+      </header>
+
+      <main>
+        <div>
+          <img src={imagenCentral} alt="Imagen Central" className="imagen-central" />
+        </div>
+
+        <div className = "container">
+          <div className="column">
+            <Link to="/usuarios">
+              <h5>Usuarios</h5>  
+            </Link>
+          </div>
+          <div className="column">
+            <Link to="/bono"> 
+              <h5>Cálculo de bono</h5>  
+            </Link>
+          </div>
+          <div className="column">
+          <Link to="/sueldo">
+            <h5>Registro</h5>  
+          </Link>
+          </div>
+        </div>
+        
+      </main>
+
+      <footer className="footer-links">
+
+      </footer>
+    </div>
+  );
+};
+
+export default Home;
