@@ -1,46 +1,65 @@
-import React from 'react';
+// src/pages/Usuario.tsx
+import React, { useState } from 'react';
 
-const Usuarios: React.FC = () => (
-  <div className="container mt-4">
-    <h2 className="mb-3">Listado de Usuario</h2>
-    <br/>
-    <p>Secciòn de usuarios</p>
-  
+interface Usuario {
+  id: number;
+  nombre: string;
+  edad: number;
+}
 
-    {/* Tabla de 3 columnas y 4 filas */}
-    <table className="table table-bordered mt-4">
-      <thead>
-        <tr>
-          <th>Columna 1</th>
-          <th>Columna 2</th>
-          <th>Columna 3</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Fila 1, Col 1</td>
-          <td>Fila 1, Col 2</td>
-          <td>Fila 1, Col 3</td>
-        </tr>
-        <tr>
-          <td>Fila 2, Col 1</td>
-          <td>Fila 2, Col 2</td>
-          <td>Fila 2, Col 3</td>
-        </tr>
-        <tr>
-          <td>Fila 3, Col 1</td>
-          <td>Fila 3, Col 2</td>
-          <td>Fila 3, Col 3</td>
-        </tr>
-        <tr>
-          <td>Fila 4, Col 1</td>
-          <td>Fila 4, Col 2</td>
-          <td>Fila 4, Col 3</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+const usuariosData: Usuario[] = [
+  { id: 1, nombre: 'Ana', edad: 25 },
+  { id: 2, nombre: 'Luis', edad: 32 },
+  { id: 3, nombre: 'María', edad: 40 },
+  { id: 4, nombre: 'Jorge', edad: 28 },
+  { id: 5, nombre: 'Sofía', edad: 35 },
+];
 
-);
+const Usuario: React.FC = () => {
+  const [edadFiltro, setEdadFiltro] = useState<number | ''>('');
 
-export default Usuarios;
+  // Filtrar usuarios por edad mínima seleccionada
+  const usuariosFiltrados = edadFiltro === ''
+    ? usuariosData
+    : usuariosData.filter(usuario => usuario.edad >= edadFiltro);
+
+  return (
+    <div className="container mt-4">
+      <h2>Usuarios</h2>
+
+      <div className="mb-3">
+        <label htmlFor="edadFiltro" className="form-label">Filtrar por edad mínima</label>
+        <select
+          id="edadFiltro"
+          className="form-select"
+          value={edadFiltro}
+          onChange={(e) => setEdadFiltro(e.target.value === '' ? '' : Number(e.target.value))}
+        >
+          <option value="">Todas las edades</option>
+          <option value="20">20+</option>
+          <option value="25">25+</option>
+          <option value="30">30+</option>
+          <option value="35">35+</option>
+          <option value="40">40+</option>
+        </select>
+      </div>
+
+      <div className="card">
+        <div className="card-header">Listado de usuarios</div>
+        <ul className="list-group list-group-flush">
+          {usuariosFiltrados.length === 0 ? (
+            <li className="list-group-item">No hay usuarios para mostrar.</li>
+          ) : (
+            usuariosFiltrados.map(usuario => (
+              <li key={usuario.id} className="list-group-item">
+                <strong>{usuario.nombre}</strong> - Edad: {usuario.edad}
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default Usuario;
